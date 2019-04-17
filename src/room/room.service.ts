@@ -13,7 +13,10 @@ export class RoomService {
   ) {}
 
   async getUsers(roomId: string) {
-    return this.roomRepository.find({ where: roomId, relations: ['users'] });
+    const room = await this.roomRepository.findOne(roomId, {
+      relations: ['users'],
+    });
+    return room.users.map(user => user.id);
   }
 
   async join(userId: string, roomId: string) {
@@ -26,9 +29,11 @@ export class RoomService {
     if (exist && exist.users.find(e => e.id === userId)) {
       throw new Error('Exist');
     }
-    const user = await this.userRepository.findOne(userId);
+    let user = await this.userRepository.findOne(userId);
     if (!user) {
-      throw new Error('UserId does not exist');
+      user = new ChatUser();
+      user.id = userId;
+      await this.userRepository.save(user);
     }
     exist.users.push(user);
     await this.roomRepository.save(exist);
@@ -45,7 +50,8 @@ export class RoomService {
     if (index !== -1) {
       exist.users.splice(index, 1);
       this.roomRepository.save(exist);
+    } else {
+      throw new Error('UserId does not in this room');
     }
-    throw new Error('UserId does not in this room');
   }
 }
