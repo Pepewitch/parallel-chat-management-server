@@ -9,20 +9,13 @@ services:
     command: sh -c 'cd /app && npm run start:dev'
     ports: 
       - 3000:3000
-    environment:
-      MYSQL_USER:
-      MYSQL_PASSWORD:
-      MYSQL_DATABASE:
     depends_on:
       - db
   db:
-    image: mysql:latest
+    image: postgres:latest
     restart: always
-    expose: 
-      - 3306
     environment:
-      MYSQL_USER:
-      MYSQL_PASSWORD:
-      MYSQL_DATABASE:
-
+      POSTGRES_DB: parallel
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     
